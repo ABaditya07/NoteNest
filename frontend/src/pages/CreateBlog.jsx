@@ -3,7 +3,6 @@ import { api } from '../api';
 import { useNavigate } from 'react-router-dom';
 import { toast } from "react-toastify";
 
-
 const CreateBlog = () => {
   const [formData, setFormData] = useState({
     title: '',
@@ -26,9 +25,8 @@ const CreateBlog = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    setLoading(true); 
+    setLoading(true);
 
-    // Convert comma-separated tags string to array
     const blogData = {
       ...formData,
       tags: formData.tags.split(',').map(tag => tag.trim()),
@@ -36,66 +34,86 @@ const CreateBlog = () => {
 
     try {
       await api.post('/', blogData);
-      toast.success("Blog published successfully!");
-      
-      navigate('/home'); // Redirect to home after blog is created
+      toast.success("🎉 Blog published successfully!");
+      navigate('/home');
     } catch (err) {
-      setError('Failed to create blog. Please try again.', err.message);
+      setError('Failed to create blog. Please try again.');
       toast.error(err.response?.data?.message || "Failed to publish blog, please try again.");
     } finally {
-      setLoading(false); 
+      setLoading(false);
     }
   };
 
   return (
-    <div className="max-w-xl mx-auto py-8 mb-4">
-       <div className="mx-auto text-center mb-8 border-b pb-8">
-          <h2 className="text-4xl font-semibold tracking-tight sm:text-5xl text-gray-900">
-            New Blog 📚
-          </h2>
+    <div className="max-w-3xl mx-auto p-8 bg-white shadow-lg rounded-md mt-10">
+      <div className="text-center mb-8 border-b pb-6">
+        <h2 className="text-4xl font-bold text-gray-800">Create New Blog 📝</h2>
+        <p className="text-gray-500 mt-2">Share your thoughts with the world</p>
+      </div>
+
+      {error && <p className="text-red-600 text-sm mb-4">{error}</p>}
+
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <div>
+          <label className="block text-gray-700 font-medium mb-1">Title</label>
+          <input
+            name="title"
+            type="text"
+            placeholder="Enter blog title"
+            value={formData.title}
+            onChange={handleChange}
+            required
+            className="w-full border rounded-md px-4 py-2 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
         </div>
 
-      {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+        <div>
+          <label className="block text-gray-700 font-medium mb-1">Content</label>
+          <textarea
+            name="content"
+            placeholder="Write your blog content..."
+            rows={8}
+            value={formData.content}
+            onChange={handleChange}
+            required
+            className="w-full border rounded-md px-4 py-2 bg-gray-50 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          name="title"
-          placeholder="Blog Title"
-          value={formData.title}
-          onChange={handleChange}
-          className="bg-gray-200 w-full border px-3 py-2 rounded text-gray-900 placeholder:text-gray-600"
-          required
-        />
-        <textarea
-          name="content"
-          placeholder="Content"
-          value={formData.content}
-          onChange={handleChange}
-          rows={8}
-          className="bg-gray-200 w-full border px-3 py-2 rounded text-gray-900 placeholder:text-gray-600"
-          required
-        />
-        <input
-          name="tags"
-          placeholder="Tags (comma-separated)"
-          value={formData.tags}
-          onChange={handleChange}
-          className="bg-gray-200 w-full border px-3 py-2 rounded text-gray-900 placeholder:text-gray-600"
-        />
-        <input
-          name="authorName"
-          placeholder="Author Name"
-          value={formData.authorName}
-          onChange={handleChange}
-          className="bg-gray-200 w-full border px-3 py-2 rounded text-gray-900 placeholder:text-gray-600"
-          required
-        />
-        <button
-          type="submit"
-          className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700"
-        >
-          {loading ? "Publishing..." : "Publish"} 
-        </button>
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex-1">
+            <label className="block text-gray-700 font-medium mb-1">Tags</label>
+            <input
+              name="tags"
+              placeholder="e.g. tech, lifestyle, coding"
+              value={formData.tags}
+              onChange={handleChange}
+              className="w-full border rounded-md px-4 py-2 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          <div className="flex-1">
+            <label className="block text-gray-700 font-medium mb-1">Author Name</label>
+            <input
+              name="authorName"
+              placeholder="Your name"
+              value={formData.authorName}
+              onChange={handleChange}
+              required
+              className="w-full border rounded-md px-4 py-2 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+        </div>
+
+        <div className="text-center pt-4">
+          <button
+            type="submit"
+            disabled={loading}
+            className="bg-blue-600 text-white font-semibold px-8 py-2 rounded-md hover:bg-blue-700 transition disabled:opacity-50"
+          >
+            {loading ? "Publishing..." : "Publish Blog"}
+          </button>
+        </div>
       </form>
     </div>
   );

@@ -1,3 +1,5 @@
+// components/Navbar.jsx
+
 import { NavLink } from "react-router-dom";
 import { useSearch } from "../context/SearchContext";
 
@@ -5,34 +7,59 @@ const Navbar = () => {
   const { searchTerm, setSearchTerm } = useSearch();
 
   const handleBlur = () => {
-    // Clear the search input on blur
-    setSearchTerm(""); // Clear input
+    setSearchTerm("");
   };
 
+  const activeClass = "text-blue-600 font-semibold";
+  const baseClass = "text-gray-700 hover:text-blue-500 transition";
+
   return (
-    <nav className="bg-gray-300 p-4 pl-5 pr-5 gap-5 flex flex-col md:flex-row justify-between items-center">
-      <div className="flex gap-5 mb-2 md:mb-0">
-        <NavLink to="/home" className="text-black hover:text-gray-800">
+    <nav className="bg-white shadow-md px-6 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
+      {/* Left - Navigation Links */}
+      <div className="flex gap-6 text-sm md:text-base">
+        <NavLink
+          to="/home"
+          className={({ isActive }) =>
+            isActive ? activeClass : baseClass
+          }
+        >
           Home
         </NavLink>
-        <NavLink to="/my-blogs" className="text-black hover:text-gray-800">
+        <NavLink
+          to="/my-blogs"
+          className={({ isActive }) =>
+            isActive ? activeClass : baseClass
+          }
+        >
           Your Posts
         </NavLink>
-        <NavLink to="/create" className="text-black hover:text-gray-800">
+        <NavLink
+          to="/create"
+          className={({ isActive }) =>
+            isActive ? activeClass : baseClass
+          }
+        >
           New Post
         </NavLink>
-        <NavLink to="/saved" className="text-black hover:text-gray-700">
+        <NavLink
+          to="/saved"
+          className={({ isActive }) =>
+            isActive ? activeClass : baseClass
+          }
+        >
           Saved Posts
         </NavLink>
       </div>
-      <div className="flex items-center gap-2">
+
+      {/* Right - Search Bar */}
+      <div className="w-full md:w-80">
         <input
           type="text"
-          placeholder="Search..."
-          className="bg-white px-2 py-1 border rounded-md w-full md:w-72 text-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 placeholder:text-gray-600"
+          placeholder="Search posts..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           onBlur={handleBlur}
+          className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
         />
       </div>
     </nav>

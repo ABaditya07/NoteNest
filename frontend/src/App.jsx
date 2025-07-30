@@ -16,7 +16,7 @@ import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import PrivateRoute from "./components/PrivateRoute";
 import SavedBlogs from "./pages/SavedBlogs";
-
+import Logout from "./pages/LogoutPage";
 function App() {
 
   // Access the user data from AuthContext
@@ -50,6 +50,7 @@ function App() {
             <Route path="/home" element={<PrivateRoute> <Home /> </PrivateRoute>} />
             <Route path="/login" element={token ? <Navigate to="/home" /> : <LoginPage />} />
             <Route path="/signup" element={token ? <Navigate to="/home" /> : <SignupPage />} />
+            <Route path="/logout" element={<Logout />} />
             <Route path="/create" element={<PrivateRoute> <CreateBlog /> </PrivateRoute>} />
             <Route path="/my-blogs" element={<PrivateRoute> <MyBlogs /> </PrivateRoute>} />
             <Route path="/edit/:id" element={<PrivateRoute> <EditBlog /> </PrivateRoute>} />

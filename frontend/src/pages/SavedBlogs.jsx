@@ -32,15 +32,13 @@ const SavedBlogs = () => {
       }
     };
     fetchSavedBlogs();
-  }, [page, searchTerm,sortOrder,sortField]);
+  }, [page, searchTerm, sortOrder, sortField]);
 
   return (
-    <div className="bg-base-600 sm:py-8">
+    <div className="bg-white sm:py-8">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        <div className="mx-auto text-center border-b pb-8">
-          <h2 className="text-4xl font-semibold tracking-tight sm:text-4xl text-gray-900">
-            Your Saved Posts 📚
-          </h2>
+        <div className="text-center border-b pb-8">
+          <h2 className="text-4xl font-bold tracking-tight text-gray-900">Your Saved Posts </h2>
           <p className="mt-2 text-lg text-gray-600">
             Explore the posts you've bookmarked for later reading.
           </p>
@@ -52,115 +50,76 @@ const SavedBlogs = () => {
           onChange={(field, order) => {
             setSortField(field);
             setSortOrder(order);
-            setPage(1); // Reset to page 1 on new sort
+            setPage(1);
           }}
         />
 
-        <div className="mx-auto grid max-w-2xl grid-cols-1 gap-x-8 gap-y-14 sm:py-6 lg:mx-0 lg:max-w-none lg:grid-cols-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mt-6">
           {loading && (
-            <p className="text-center text-gray-500">
+            <div className="col-span-full text-center text-gray-500">
               Loading saved blogs...
-              <svg
-                className="animate-spin h-5 w-5 text-gray-500 mr-2 ml-4 inline-block"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                />
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8v8z"
-                />
+              <svg className="animate-spin h-5 w-5 text-gray-500 ml-2 inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
               </svg>
-            </p>
+            </div>
           )}
-          {error && <p className="text-center text-red-500">{error}</p>}
+          {error && <p className="col-span-full text-center text-red-500">{error}</p>}
 
-          {savedBlogs.length > 0
-            ? savedBlogs.map((blog) => (
-                <article
-                  key={blog._id}
-                  className="flex max-w-xl flex-col items-start justify-between bg-gray-100 border border-gray-200 p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300"
-                >
-                  <div className="flex items-center gap-x-4 text-xs">
-                    <span className="text-sm text-gray-600">
-                      {new Date(blog.createdAt).toLocaleDateString()}
-                    </span>
-                    <span className="bg-gray-500 px-3 py-1.5 rounded-full font-medium text-gray-50">
-                      {blog.tags?.[0] || "General"}
-                    </span>
-                  </div>
+          {savedBlogs.length > 0 ? (
+            savedBlogs.map((blog) => (
+              <article key={blog._id} className="bg-gray-50 border rounded-lg p-6 shadow-md hover:shadow-lg transition duration-300">
+                <div className="flex items-center justify-between text-sm text-gray-500 mb-2">
+                  <span>{new Date(blog.createdAt).toLocaleDateString()}</span>
+                  <span className="bg-blue-500 text-white px-3 py-1 rounded-full text-xs">{blog.tags?.[0] || "General"}</span>
+                </div>
+                <h3 className="text-xl font-semibold text-gray-800 hover:underline">
+                  <Link to={`/blog/${blog._id}`}>{blog.title}</Link>
+                </h3>
+                <p className="mt-2 text-gray-600 text-sm line-clamp-3">{blog.content.slice(0, 200)}...</p>
 
-                  <div className="group relative">
-                    <h3 className="mt-3 text-lg font-semibold text-gray-900 group-hover:text-black hover:underline text-start">
-                      <Link to={`/blog/${blog._id}`}>
-                        <span className="absolute inset-0" />
-                        {blog.title}
-                      </Link>
-                    </h3>
-                    <p className="mt-4 line-clamp-3 text-sm text-gray-600 text-start">
-                      {blog.content.slice(0, 200)}...
-                    </p>
-                  </div>
-
-                  <div className="mt-6 flex w-full items-center justify-between relative">
-                    <div className="flex items-center gap-4">
-                      <img
-                        src={`https://api.dicebear.com/7.x/initials/svg?seed=${blog.authorName}`}
-                        alt="author avatar"
-                        className="size-10 rounded-full bg-base-200"
-                      />
-                      <div className="text-sm text-start">
-                        <p className="font-semibold text-gray-900">
-                          {blog.authorName}
-                        </p>
-                        <p className="text-gray-500">Author</p>
-                      </div>
+                <div className="flex items-center justify-between mt-4">
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={`https://api.dicebear.com/7.x/initials/svg?seed=${blog.authorName}`}
+                      alt="avatar"
+                      className="w-10 h-10 rounded-full"
+                    />
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">{blog.authorName}</p>
+                      <p className="text-xs text-gray-500">Author</p>
                     </div>
-
-                    <button
-                      onClick={async () => {
-                        try {
-                          await api.put(`/${blog._id}/save`, {
-                            userId: user.id,
-                          }); // Same toggle route
-                          // Remove unsaved blog from UI
-                          setSavedBlogs((prev) =>
-                            prev.filter((b) => b._id !== blog._id)
-                          );
-                          toast.info("Blog removed from saved.");
-                        } catch (err) {
-                          alert("Failed to unsave blog", err.message);
-                        }
-                      }}
-                      className="text-3xl text-gray-700 absolute bottom-0 right-0 transition-colors duration-200 m-0 p-0 bg-transparent border-none focus:outline-none"
-                    >
-                      <i className="fas fa-bookmark"></i>
-                    </button>
                   </div>
-                </article>
-              ))
-            : !loading && (
-                <p className="text-center text-gray-500 w-full col-span-3">
-                  You haven't saved any blogs yet.
-                </p>
-              )}
+                  <button
+                    onClick={async () => {
+                      try {
+                        await api.put(`/${blog._id}/save`, { userId: user.id });
+                        setSavedBlogs((prev) => prev.filter((b) => b._id !== blog._id));
+                        toast.info("Blog removed from saved.");
+                      } catch (err) {
+                        alert("Failed to unsave blog", err.message);
+                      }
+                    }}
+                    className="text-gray-600 hover:text-red-500 transition"
+                    title="Unsave Blog"
+                  >
+                    <i className="fas fa-bookmark text-lg"></i>
+                  </button>
+                </div>
+              </article>
+            ))
+          ) : (
+            !loading && <p className="col-span-full text-center text-gray-500">You haven't saved any blogs yet.</p>
+          )}
         </div>
-        <div className="flex justify-center mt-8 gap-3">
+
+        <div className="flex justify-center mt-10 gap-2">
           {Array.from({ length: totalPages }, (_, i) => (
             <button
               key={i}
               onClick={() => setPage(i + 1)}
-              className={`px-4 py-2 rounded ${
-                page === i + 1 ? "bg-gray-600 text-white" : "bg-gray-200"
+              className={`px-4 py-2 rounded-md border ${
+                page === i + 1 ? "bg-gray-700 text-white" : "bg-white text-gray-700"
               }`}
             >
               {i + 1}

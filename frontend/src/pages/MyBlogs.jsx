@@ -60,7 +60,7 @@ const MyBlogs = () => {
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto text-center border-b pb-8">
           <h2 className="text-4xl font-semibold tracking-tight sm:text-5xl text-gray-900">
-            Your Posts 📚
+            Your Posts 📝
           </h2>
         </div>
 
