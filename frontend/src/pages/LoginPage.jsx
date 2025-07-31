@@ -45,7 +45,7 @@ export default function LoginPage() {
       <div className="w-full max-w-5xl h-[440px] flex shadow-xl overflow-hidden bg-white">
         {/* Left Side */}
         <div className="w-1/2 bg-gray-900 text-white gap-1 flex flex-col justify-center items-center p-6">
-          <h1 className="text-4xl font-bold mb-2">Blogify</h1>
+          <h1 className="text-4xl font-bold mb-2">NoteNest</h1>
           <p className="text-xl font-medium mb-2">Login to your account</p>
           <p className="text-sm text-gray-300">
             Don't have an account?{" "}
@@ -54,7 +54,7 @@ export default function LoginPage() {
             </Link>
           </p>
           <p className="text-xs text-gray-500 mt-10">
-            © {new Date().getFullYear()} Blogify.com, All rights reserved
+            © {new Date().getFullYear()} NoteNest.com, All rights reserved
           </p>
         </div>
 
@@ -98,7 +98,7 @@ export default function LoginPage() {
             </button>
 
             <p className="text-xs text-gray-500 text-center mt-2">
-              By continuing, you agree to Blogify's{" "}
+              By continuing, you agree to NoteNest's{" "}
               <Link to="#" className="underline">
                 Terms & Conditions
               </Link>{" "}

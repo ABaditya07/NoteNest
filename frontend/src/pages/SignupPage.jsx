@@ -38,7 +38,7 @@ export default function SignupPage() {
       <div className="w-full max-w-5xl h-[440px] flex shadow-xl overflow-hidden bg-white">
         {/* Left Side */}
         <div className="w-1/2 bg-gray-900 text-white gap-1 flex flex-col justify-center items-center p-6">
-          <h1 className="text-4xl font-bold mb-2">Blogify</h1>
+          <h1 className="text-4xl font-bold mb-2">NoteNest</h1>
           <p className="text-xl font-medium mb-2">Join us today</p>
           <p className="text-sm text-gray-300">
             Already have an account?{" "}
@@ -47,7 +47,7 @@ export default function SignupPage() {
             </Link>
           </p>
           <p className="text-xs text-gray-500 mt-10">
-            © {new Date().getFullYear()} Blogify.com, All rights reserved
+            © {new Date().getFullYear()} NoteNest.com, All rights reserved
           </p>
         </div>
 
@@ -102,7 +102,7 @@ export default function SignupPage() {
             </button>
 
             <p className="text-xs text-gray-500 text-center mt-2">
-              By signing up, you agree to Blogify's{" "}
+              By signing up, you agree to NoteNest{" "}
               <Link to="#" className="underline">
                 Terms & Conditions
               </Link>{" "}
