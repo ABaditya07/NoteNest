@@ -1,7 +1,7 @@
 import { useEffect, useState, useContext } from "react";
 import { api } from "../api";
 import { useSearch } from "../context/SearchContext";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { toast } from "react-toastify";
 import SortDropdown from "../components/SortDropdown";
@@ -16,135 +16,137 @@ const Home = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [sortField, setSortField] = useState("createdAt");
   const [sortOrder, setSortOrder] = useState("desc");
+  const [menuOpenId, setMenuOpenId] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
+    setLoading(true);
     api
       .get(`/?page=${page}&limit=9&search=${searchTerm}&sort=${sortField}_${sortOrder}`)
       .then((res) => {
-        setBlogs(res.data.blogs);
-        setTotalPages(res.data.totalPages);
+        setBlogs(res.data?.blogs || []);
+        setTotalPages(res.data?.totalPages || 1);
         setLoading(false);
       })
-      .catch((err) => {
+      .catch(() => {
         setError("Failed to fetch blogs.");
         setLoading(false);
       });
   }, [page, searchTerm, sortField, sortOrder]);
 
-  return (
-    <div className="bg-white py-10 min-h-screen">
-      <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        {/* Nav underline */}
-        <div className="border-b border-gray-300 mb-6">
-          <ul className="flex space-x-8 justify-center text-gray-600 text-sm font-medium">
-            <li className="pb-2 border-b-2 border-blue-600">Home</li>
-            <li className="pb-2 hover:border-b-2 hover:border-blue-500 cursor-pointer">New Post</li>
-            <li className="pb-2 hover:border-b-2 hover:border-blue-500 cursor-pointer">Your Posts</li>
-            <li className="pb-2 hover:border-b-2 hover:border-blue-500 cursor-pointer">Saved</li>
-          </ul>
-        </div>
+  const handleDelete = async (id) => {
+    if (!window.confirm("Delete this blog?")) return;
+    try {
+      await api.delete(`/blogs/${id}`);
+      setBlogs((prev) => prev.filter((b) => b._id !== id));
+      toast.success("Deleted successfully!");
+    } catch {
+      toast.error("Delete failed.");
+    }
+  };
 
-        <div className="text-center border-b border-gray-300 pb-8">
-          <h2 className="text-4xl sm:text-5xl font-bold text-blue-700 mb-3">
-            NoteNest – Your Voice, Your Stories 📢
+  return (
+    <div className="bg-base-600 sm:py-10">
+      <div className="mx-auto max-w-7xl px-6 lg:px-8">
+        <div className="mx-auto text-start border-b pb-8">
+          <h2 className="text-4xl font-semibold tracking-tight sm:text-4xl text-gray-900">
+            NoteNest – Your Voice, Your Stories, Your Platform✨
           </h2>
-          <p className="text-gray-600 text-lg">
-            Share insights, connect with readers, and build your online presence with elegant storytelling.
+          <p className="mt-2 text-lg text-gray-600">
+            Share your thoughts, insights, and experiences with the world...
           </p>
         </div>
 
-        <div className="mt-6 flex justify-end">
-          <SortDropdown
-            sortField={sortField}
-            sortOrder={sortOrder}
-            onChange={(field, order) => {
-              setSortField(field);
-              setSortOrder(order);
-              setPage(1);
-            }}
-          />
-        </div>
+        <SortDropdown
+          sortField={sortField}
+          sortOrder={sortOrder}
+          onChange={(field, order) => {
+            setSortField(field);
+            setSortOrder(order);
+            setPage(1);
+          }}
+        />
 
-        <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {loading && <p className="text-center col-span-full text-blue-600">Loading blogs...</p>}
-          {error && <p className="text-center col-span-full text-red-600">{error}</p>}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+          {loading && <p>Loading...</p>}
+          {error && <p className="text-red-500">{error}</p>}
 
-          {!loading && blogs.length === 0 && (
-            <p className="text-center col-span-full text-gray-500">No blogs found.</p>
-          )}
-
-          {blogs.map((blog) => {
-            const handleSave = async () => {
-              try {
-                const res = await api.put(`/${blog._id}/save`, { userId: user.id });
-                setBlogs((prev) => prev.map((b) => (b._id === blog._id ? res.data : b)));
-                const isSaved = res.data.savedBy.includes(user.id);
-                toast[isSaved ? "success" : "info"](isSaved ? "Blog saved!" : "Blog unsaved.");
-              } catch (err) {
-                toast.error("Failed to save blog.");
-              }
-            };
+          {!loading && blogs.length > 0 && blogs.map((blog) => {
+            const isAuthor = blog.authorName === user?.username;
 
             return (
-              <div
-                key={blog._id}
-                className="bg-gray-50 border rounded-lg p-6 shadow-md hover:shadow-lg transition duration-300 flex flex-col justify-between"
-              >
-                <div className="mb-4">
-                  <div className="flex justify-between items-center text-sm text-gray-500">
-                    <span>{new Date(blog.createdAt).toLocaleDateString()}</span>
-                    <span className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">
-                      {blog.tags?.[0] || "General"}
-                    </span>
-                  </div>
-                  <Link to={`/blog/${blog._id}`}>
-                    <h3 className="text-xl font-semibold text-gray-900 mt-3 hover:underline">
-                      {blog.title}
-                    </h3>
-                  </Link>
-                  <p className="text-sm text-gray-600 mt-2 line-clamp-3">
-                    {blog.content.slice(0, 200)}...
-                  </p>
+              <div key={blog._id} className="relative bg-white border border-gray-200 p-6 rounded-xl shadow-sm hover:shadow-md transition duration-300">
+                <div className="flex justify-between items-center text-sm text-gray-500 mb-3">
+                  <span>{new Date(blog.createdAt).toLocaleDateString()}</span>
+                  <span className="bg-blue-600 text-white px-3 py-1 rounded-full text-xs capitalize">
+                    {blog.tags?.[0] || "General"}
+                  </span>
                 </div>
 
-                <div className="flex justify-between items-center border-t pt-4 mt-auto">
+                <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">
+                  <Link to={`/blog/${blog._id}`} className="hover:text-blue-600 transition">
+                    {blog.title}
+                  </Link>
+                </h3>
+                <p className="text-gray-600 text-sm line-clamp-3 mb-4">
+                  {blog.content?.slice(0, 200)}...
+                </p>
+
+                <div className="flex justify-between items-center">
                   <div className="flex gap-3 items-center">
                     <img
                       src={`https://api.dicebear.com/7.x/initials/svg?seed=${blog.authorName}`}
-                      alt="author avatar"
                       className="w-10 h-10 rounded-full"
+                      alt="avatar"
                     />
-                    <div className="text-sm">
-                      <p className="font-medium text-gray-800">{blog.authorName}</p>
-                      <p className="text-gray-500">Author</p>
+                    <div>
+                      <p className="font-medium text-gray-900">{blog.authorName}</p>
+                      <p className="text-xs text-gray-500">Author</p>
                     </div>
                   </div>
-                  <button
-                    onClick={handleSave}
-                    className={`text-xl transition ${
-                      blog.savedBy?.includes(user.id)
-                        ? "text-blue-600"
-                        : "text-gray-400 hover:text-blue-500"
-                    }`}
-                  >
-                    <i className="fas fa-bookmark"></i>
-                  </button>
+
+                  {isAuthor && (
+                    <div className="relative">
+                      <button
+                        onClick={() => setMenuOpenId(menuOpenId === blog._id ? null : blog._id)}
+                        className="text-gray-500 hover:text-gray-700"
+                      >
+                        <i className="fas fa-ellipsis-h"></i>
+                      </button>
+
+                      {menuOpenId === blog._id && (
+                        <div className="absolute right-0 mt-2 w-28 bg-white border rounded-md shadow-md z-10">
+                          <button
+                            className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                            onClick={() => navigate(`/edit/${blog._id}`)}
+                          >
+                            ✏️ Edit
+                          </button>
+                          <button
+                            className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                            onClick={() => handleDelete(blog._id)}
+                          >
+                            🗑️ Delete
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             );
           })}
+
+          {!loading && blogs.length === 0 && <p>No blogs found.</p>}
         </div>
 
-        {/* Pagination */}
         {totalPages > 1 && (
-          <div className="mt-10 flex justify-center gap-2">
+          <div className="flex mt-8 justify-center gap-3">
             {Array.from({ length: totalPages }, (_, i) => (
               <button
                 key={i}
                 onClick={() => setPage(i + 1)}
-                className={`px-4 py-2 rounded-md ${
-                  page === i + 1 ? "bg-blue-600 text-white" : "bg-gray-200 hover:bg-gray-300"
-                } transition`}
+                className={`px-4 py-2 rounded ${page === i + 1 ? "bg-gray-600 text-white" : "bg-gray-200"}`}
               >
                 {i + 1}
               </button>

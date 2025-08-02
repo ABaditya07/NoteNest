@@ -1,3 +1,4 @@
+// SavedBlogs.jsx
 import { useEffect, useState, useContext } from "react";
 import { api } from "../api";
 import { Link } from "react-router-dom";
@@ -23,10 +24,10 @@ const SavedBlogs = () => {
         const res = await api.get(
           `/saved/${user.id}?page=${page}&limit=9&search=${searchTerm}&sort=${sortField}_${sortOrder}`
         );
-        setSavedBlogs(res.data.savedBlogs);
-        setTotalPages(res.data.totalPages);
+        setSavedBlogs(res.data?.savedBlogs || []);
+        setTotalPages(res.data?.totalPages || 1);
       } catch (err) {
-        setError("Failed to load saved blogs", err.message);
+        setError("Failed to load saved blogs: " + err.message);
       } finally {
         setLoading(false);
       }
@@ -35,10 +36,10 @@ const SavedBlogs = () => {
   }, [page, searchTerm, sortOrder, sortField]);
 
   return (
-    <div className="bg-white sm:py-8">
+    <div className="bg-base-600 sm:py-10">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        <div className="text-center border-b pb-8">
-          <h2 className="text-4xl font-bold tracking-tight text-gray-900">Your Saved Posts </h2>
+        <div className="text-start border-b pb-8">
+          <h2 className="text-4xl font-semibold text-gray-900">Your Saved Posts 📝</h2>
           <p className="mt-2 text-lg text-gray-600">
             Explore the posts you've bookmarked for later reading.
           </p>
@@ -68,12 +69,12 @@ const SavedBlogs = () => {
 
           {savedBlogs.length > 0 ? (
             savedBlogs.map((blog) => (
-              <article key={blog._id} className="bg-gray-50 border rounded-lg p-6 shadow-md hover:shadow-lg transition duration-300">
+              <article key={blog._id} className="bg-gray-100 border border-gray-200 p-6 rounded-lg shadow-sm hover:shadow-md transition">
                 <div className="flex items-center justify-between text-sm text-gray-500 mb-2">
                   <span>{new Date(blog.createdAt).toLocaleDateString()}</span>
-                  <span className="bg-blue-500 text-white px-3 py-1 rounded-full text-xs">{blog.tags?.[0] || "General"}</span>
+                  <span className="bg-gray-500 text-white px-3 py-1 rounded-full text-xs">{blog.tags?.[0] || "General"}</span>
                 </div>
-                <h3 className="text-xl font-semibold text-gray-800 hover:underline">
+                <h3 className="text-lg font-semibold text-gray-900 hover:underline">
                   <Link to={`/blog/${blog._id}`}>{blog.title}</Link>
                 </h3>
                 <p className="mt-2 text-gray-600 text-sm line-clamp-3">{blog.content.slice(0, 200)}...</p>
@@ -97,10 +98,10 @@ const SavedBlogs = () => {
                         setSavedBlogs((prev) => prev.filter((b) => b._id !== blog._id));
                         toast.info("Blog removed from saved.");
                       } catch (err) {
-                        alert("Failed to unsave blog", err.message);
+                        toast.error("Failed to unsave blog: " + err.message);
                       }
                     }}
-                    className="text-gray-600 hover:text-red-500 transition"
+                    className="text-gray-600 hover:text-red-500"
                     title="Unsave Blog"
                   >
                     <i className="fas fa-bookmark text-lg"></i>
@@ -113,19 +114,21 @@ const SavedBlogs = () => {
           )}
         </div>
 
-        <div className="flex justify-center mt-10 gap-2">
-          {Array.from({ length: totalPages }, (_, i) => (
-            <button
-              key={i}
-              onClick={() => setPage(i + 1)}
-              className={`px-4 py-2 rounded-md border ${
-                page === i + 1 ? "bg-gray-700 text-white" : "bg-white text-gray-700"
-              }`}
-            >
-              {i + 1}
-            </button>
-          ))}
-        </div>
+        {totalPages > 1 && (
+          <div className="flex justify-center mt-10 gap-2">
+            {Array.from({ length: totalPages }, (_, i) => (
+              <button
+                key={i}
+                onClick={() => setPage(i + 1)}
+                className={`px-4 py-2 rounded-md border ${
+                  page === i + 1 ? "bg-gray-700 text-white" : "bg-white text-gray-700"
+                }`}
+              >
+                {i + 1}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
